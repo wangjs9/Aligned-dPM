@@ -5,7 +5,7 @@
 
 This is the PyTorch implementation of the paper:
 
-[**Aligning Language Models with Human Preferences via a Bayesian Approach**](https://aclanthology.org/2022.findings-emnlp.51/). 
+[**Aligning Language Models with Human Preferences via a Bayesian Approach**](). 
 
 [Jiashuo WANG](http://www4.comp.polyu.edu.hk/~csjwang/), [Haozhao WANG](http://wanghaozhao.mysxl.cn/), [Shichao SUN](https://shichaosun.github.io/), [Wenjie LI](https://www4.comp.polyu.edu.hk/~cswjli/), NeurIPS 2023
 
