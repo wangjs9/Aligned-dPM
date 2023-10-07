@@ -1,4 +1,5 @@
 {
+  "model_name": "bert-base-uncased",
   "pretrained_model_path": "bert-base-uncased",
   "custom_config_path": null,
   "gradient_checkpointing": false,
