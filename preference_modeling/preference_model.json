@@ -1,6 +1,22 @@
 {
-  "model_name": "preference_model",
   "pretrained_model_path": "bert-base-uncased",
   "custom_config_path": null,
-  "gradient_checkpointing": false
+  "gradient_checkpointing": false,
+  "expanded_vocab": [
+    "[Open Question]",
+    "[Closed Question]",
+    "[Complex Reflection]",
+    "[Simple Reflection]",
+    "[Give Information]",
+    "[Advise with Permission]",
+    "[Affirm]",
+    "[Emphasize Autonomy]",
+    "[Support]",
+    "[Confront]",
+    "[Warn]",
+    "[Direct]",
+    "[Advise without Permission]",
+    "[Self-Disclose]",
+    "[Other]"
+  ]
 }
