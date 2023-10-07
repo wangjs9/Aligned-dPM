@@ -1,0 +1,3 @@
+CUDA_VISIBLE_DEVICES=0 python -m rot_generation.generate_rots --input "./data/mic/MIC.csv" --output "./rot_generation/output" --epochs 5 --model_checkpoint "t5-small" --gpu 0 --seed 1 --format_string "Q [answ] A [rot] ~ rot" > rot_t5.log 2>&1 &
+CUDA_VISIBLE_DEVICES=1 python -m rot_generation.generate_rots --input "./data/mic/MIC.csv" --output "./rot_generation/output" --epochs 5 --model_checkpoint "facebook/bart-large" --gpu 1 --seed 1 --format_string "Q [answ] A [rot] ~ rot" > rot_bart.log 2>&1 &
+CUDA_VISIBLE_DEVICES=2 python -m rot_generation.generate_rots --input "./data/mic/MIC.csv" --output "./rot_generation/output" --epochs 5 --model_checkpoint "google/flan-t5-base" --gpu 2 --seed 1 --format_string "Q [answ] A [rot] ~ rot" > rot_flan.log 2>&1 &
