@@ -2,8 +2,6 @@
 
 ![image](../plot/dPM.png)
 
-### Requirements
-
 ### Data Download
 
 Download [MI Dataset.csv](https://github.com/anuradha1992/Motivational-Interviewing-Dataset/blob/main/MI%20Dataset.csv)
