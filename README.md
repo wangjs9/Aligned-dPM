@@ -22,7 +22,8 @@ If you use our codes or your research is related to our work, please kindly cite
     month = dec,
     year = "2023",
     address = "New Orleans, LA, USA",
-    organization= "PMLR"}
+    organization= "PMLR"
+    }
 ```
 
 
