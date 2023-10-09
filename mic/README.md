@@ -35,7 +35,7 @@ By default, the model will be saved in the **align_rot_generation/output** folde
 ### Evaluation Metric Computation
 
 ```console
-python -m {foler_name}.metrics --input "align_rot_generation/output/*" --output "all_results.csv"
+python -m rot_generation.metrics --input "{folder_name}/output/*" --output "all_results.csv"
 ```
 
-{folder_name} can be either **align_rot_generation** or **rot_generation**.
+``{folder_name}`` can be either **align_rot_generation** or **rot_generation**.
