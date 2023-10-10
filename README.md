@@ -5,7 +5,7 @@
 
 This is the PyTorch implementation of the paper:
 
-[**Aligning Language Models with Human Preferences via a Bayesian Approach**](). 
+[**Aligning Language Models with Human Preferences via a Bayesian Approach**](https://arxiv.org/pdf/2310.05782.pdf). 
 
 [Jiashuo WANG](http://www4.comp.polyu.edu.hk/~csjwang/), [Haozhao WANG](http://wanghaozhao.mysxl.cn/), [Shichao SUN](https://shichaosun.github.io/), [Wenjie LI](https://www4.comp.polyu.edu.hk/~cswjli/), NeurIPS 2023
 
