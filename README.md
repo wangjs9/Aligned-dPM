@@ -18,12 +18,12 @@ If you use our codes or your research is related to our work, please kindly cite
       Wang, Haozhao  and
       Sun, Shichao and
       Li, Wenjie",
-    booktitle = "Conference on Neural Information Processing Systems: NeurIPS 2022",
+    booktitle = "Conference on Neural Information Processing Systems: NeurIPS 2023",
     month = dec,
     year = "2023",
     address = "New Orleans, LA, USA",
     organization= "PMLR"
-    }
+}
 ```
 
 
