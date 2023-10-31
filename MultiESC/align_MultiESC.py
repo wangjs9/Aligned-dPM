@@ -123,8 +123,6 @@ else:
 
 tokenizer.add_tokens(strategy_list)
 
-from transformers.optimization import AdamW, Adafactor
-
 
 def test_checkpoints(aligned_model_dir, args):
     checkpoint_list = os.listdir(aligned_model_dir)
@@ -341,7 +339,6 @@ def alignment(args):
                                sentence_num=args.sen_num, add_cause=args.with_cause, lookahead=args.lookahead)
     print(len(valid_dataset), len(test_dataset))
     my_optim = get_optimer(model, second_parameters, training_args)
-    # my_scheduler = get_schedule_with_warmup(my_optim, num_warmup_steps=args.warmup_steps)
 
     trainer = Seq2SeqTrainer(
         model=model,

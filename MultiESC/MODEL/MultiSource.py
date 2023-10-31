@@ -10,11 +10,8 @@ from transformers.file_utils import ModelOutput
 
 
 def RankingLoss(score, gold_score=None, margin=0.001, gold_margin=0, gold_weight=0, no_gold=False, no_cand=False):
-    if score.sum() == 0:
-        return 0
-    loss_func = torch.nn.MarginRankingLoss(0.0, reduction='sum')
-    labels = (score != 0).long()
-    TotalLoss = loss_func(score, score, labels) / labels.sum()
+    loss_func = torch.nn.MarginRankingLoss(0.0)
+    TotalLoss = loss_func(score, score, (score != 0).long())
     # candidate loss
     n = score.size(1)
     no_cand = True if score.sum() == 0 else no_cand
@@ -24,25 +21,20 @@ def RankingLoss(score, gold_score=None, margin=0.001, gold_margin=0, gold_weight
             neg_score = score[:, i:]
             pos_score = pos_score.contiguous().view(-1)
             neg_score = neg_score.contiguous().view(-1)
-            loss_func = torch.nn.MarginRankingLoss(margin * i, reduction='sum')
-            loss_mask = ((pos_score != 0) & (neg_score != 0)).long()
-            if loss_mask.sum() == 0:
-                continue
-            loss = loss_func(pos_score, neg_score, loss_mask) / loss_mask.sum()
+            loss_func = torch.nn.MarginRankingLoss(margin * i)
+            labels = ((pos_score != 0) & (neg_score != 0)).long()
+            loss = loss_func(pos_score, neg_score, labels)
             TotalLoss += loss
     if no_gold:
         return TotalLoss
     # gold response loss
-    if gold_weight > 0:
-        pos_score = gold_score.unsqueeze(-1).expand_as(score)
-        neg_score = score
-        pos_score = pos_score.contiguous().view(-1)
-        neg_score = neg_score.contiguous().view(-1)
-        loss_func = torch.nn.MarginRankingLoss(gold_margin, reduction='sum')
-        loss_mask = (neg_score != 0).long()
-        if loss_mask.sum() == 0:
-            return TotalLoss
-        TotalLoss += gold_weight * loss_func(pos_score, neg_score, loss_mask) / loss_mask.sum()
+    pos_score = gold_score.unsqueeze(-1).expand_as(score)
+    neg_score = score
+    pos_score = pos_score.contiguous().view(-1)
+    neg_score = neg_score.contiguous().view(-1)
+    ones = torch.ones_like(pos_score)
+    loss_func = torch.nn.MarginRankingLoss(gold_margin)
+    TotalLoss += gold_weight * loss_func(pos_score, neg_score, ones)
     return TotalLoss
 
 

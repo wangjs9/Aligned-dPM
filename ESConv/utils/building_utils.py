@@ -53,7 +53,7 @@ def build_model(only_toker=False, checkpoint=None, local_rank=-1, **kwargs):
     if checkpoint is not None:
         if local_rank == -1 or get_rank() == 0:
             logger.info('loading finetuned model from %s' % checkpoint)
-        model.load_state_dict(torch.load(checkpoint, map_location=torch.device('cpu')))
+        model.load_state_dict(torch.load(checkpoint, map_location=torch.device('cpu')), strict=False)
 
     return toker, model
 

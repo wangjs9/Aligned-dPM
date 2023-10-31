@@ -189,6 +189,7 @@ class Seq2SeqTrainer(Trainer):
         has_labels = "labels" in inputs
         inputs = self._prepare_inputs(inputs)
 
+        # XXX: adapt synced_gpus for fairscale as well
         gen_kwargs = {
             "max_length": self._max_length if self._max_length is not None else self.model.config.max_length,
             "num_beams": self._num_beams if self._num_beams is not None else self.model.config.num_beams,
@@ -196,44 +197,18 @@ class Seq2SeqTrainer(Trainer):
             "num_return_sequences": self._sequence_num if self._sequence_num is not None else self.model.config.num_return_sequences,
             "output_scores": self._output_score,
             "return_dict_in_generate": self._output_score,
-            "do_sample": True,
-            "length_penalty": 1.0,
+            "do_sample": False,
+            # in ESConv do_sample is always True, a False value will produce higher results. Here we follow MultiESC
+            # "length_penalty": 1.0,
         }
         try:
             if self.is_sampling:
                 assert self._num_beams is not None and self._sequence_num is not None, "Sampling requires num_beams and num_return_sequences to be set"
-                gen_kwargs["diversity_penalty"] = 4.0
+                gen_kwargs["diversity_penalty"] = 2.0
+                gen_kwargs["length_penalty"] = -1.0
 
         except AttributeError:
             pass
-
-        # XXX: adapt synced_gpus for fairscale as well
-        # gen_kwargs = {
-        #     "max_length": self._max_length if self._max_length is not None else self.model.config.max_length,
-        #     "num_beams": self._num_beams if self._num_beams is not None else self.model.config.num_beams,
-        #     "synced_gpus": True if is_deepspeed_zero3_enabled() else False,
-        #     "num_return_sequences": self._sequence_num if self._sequence_num is not None else self.model.config.num_return_sequences,
-        #     "output_scores": self._output_score,
-        #     "return_dict_in_generate": self._output_score,
-        # }
-        # try:
-        #     if self.is_sampling:
-        #         assert self._num_beams is not None and self._sequence_num is not None, "Sampling requires num_beams and num_return_sequences to be set"
-        #         gen_kwargs = {
-        #             "max_length": self._max_length if self._max_length is not None else self.model.config.max_length,
-        #             "num_beams": self._num_beams,
-        #             "synced_gpus": True if is_deepspeed_zero3_enabled() else False,
-        #             "num_return_sequences": self._sequence_num,
-        #             "num_beam_groups": self._num_beams,
-        #             "output_scores": self._output_score,
-        #             "return_dict_in_generate": self._output_score,
-        #             "do_sample": False,
-        #             "diversity_penalty": 4.0,
-        #             # "length_penalty": -1.0, # add
-        #         }
-        #
-        # except AttributeError:
-        #     pass
 
         if self.tokenizer is not None:
             generation_inputs = {k: v for k, v in inputs.items() if k in self.tokenizer.model_input_names}
