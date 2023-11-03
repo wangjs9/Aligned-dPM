@@ -14,7 +14,6 @@ from torch import Tensor
 import torch.nn.functional as F
 from torch.distributed import get_rank
 from transformers.optimization import AdamW
-# from torch.optim import Adam
 from transformers.trainer_utils import set_seed
 
 from inputters import inputters
@@ -95,9 +94,9 @@ def align_base_model(base_model, toker, train_dataloader, args, output_dir, logg
             os.mkdir(log_output_dir)
         train_logger = open(os.path.join(log_output_dir, "alignment_train_log.csv"), "a+", buffering=1)
         eval_logger = open(os.path.join(log_output_dir, "alignment_eval_log.csv"), "a+", buffering=1)
-        print("all_step_cnt\tstep_cnt\tavg_loss\tavg_ranking_loss\tavg_lm_loss\tavg_ppl\tn_token_total\tepoch_time",
+        print("global_step\tepoch\tstep\tavg_loss\tavg_ranking_loss\tavg_lm_loss\tavg_ppl\tepoch_time",
               file=train_logger)
-        print("all_step_cnt\tstep_cnt\teval_loss\teval_ppl\teval_bleu\teval_rouge", file=eval_logger)
+        print("global_step\tepoch\tstep\teval_loss\teval_ppl\teval_bleu\teval_rouge", file=eval_logger)
 
     optim_step_num = len(train_dataloader) // (args.train_batch_size * args.accumulate_step) + int(
         len(train_dataloader) % (args.train_batch_size * args.accumulate_step) != 0)
@@ -206,7 +205,7 @@ def align_base_model(base_model, toker, train_dataloader, args, output_dir, logg
                         pbar.update(1)
 
                     print(
-                        f"{epoch + 1}\t{all_step_cnt + 1}\t{step_cnt + 1}\t{avg_loss}\t{avg_ranking_loss}\t{avg_lm_loss}\t{avg_ppl}\t{epoch_time}",
+                        f"{all_step_cnt + 1}\t{epoch + 1}\t{step_cnt + 1}\t{avg_loss}\t{avg_ranking_loss}\t{avg_lm_loss}\t{avg_ppl}\t{epoch_time}",
                         file=train_logger)
 
                     wandb.log({"avg_ranking_loss": avg_ranking_loss, "avg_lm_loss": avg_lm_loss, "avg_loss": avg_loss})
@@ -230,17 +229,18 @@ def align_base_model(base_model, toker, train_dataloader, args, output_dir, logg
                         eval_loss, eval_ppl, metric_results, metric_result_list, results = eval_model(
                             base_model, toker, args, eval_dataloader_loss, eval_dataloader_infer
                         )
-                        eval_bleu = metric_results["bleu-4"]
+                        eval_bleu = metric_results["bleu-1"]
                         eval_rouge = metric_results["rouge-l"]
                         print(
-                            f"**Eval (step: {all_step_cnt})** Loss: {eval_loss:.4f}, PPL: {eval_ppl:.4f}, BLEU-4: {eval_bleu:.2f}, ROUGE-L: {eval_rouge:.2f}")
+                            f"**Eval (step: {all_step_cnt})** Loss: {eval_loss:.4f}, PPL: {eval_ppl:.4f}, BLEU-1: {eval_bleu:.2f}, ROUGE-L: {eval_rouge:.2f}")
                         eval_score = eval_bleu
                         if eval_loss > 5:
                             logger.info("ppl is greater than 5.")
                             exit()
                         last_update_time += 1
 
-                        if len(highest_score) < args.save_total_limit or eval_score > min(highest_score.keys()):
+                        if (all_step_cnt > args.warmup_step or args.warmup_step > optim_step_num) and (
+                                len(highest_score) < args.save_total_limit or eval_score > min(highest_score.keys())):
                             last_update_time = 0
                             args.checkpoint_dir = os.path.join(output_dir, f"aligned_{args.config_name}_{all_step_cnt}")
                             highest_score[eval_score] = args.checkpoint_dir
@@ -257,7 +257,7 @@ def align_base_model(base_model, toker, train_dataloader, args, output_dir, logg
                                 del highest_score[min(highest_score.keys())]
 
                         print(
-                            f"{epoch + 1}\t{all_step_cnt}\t{step_cnt}\t{eval_loss}\t{eval_ppl}\t{eval_bleu}\t{eval_rouge}",
+                            f"{all_step_cnt}\t{epoch + 1}\t{step_cnt}\t{eval_loss}\t{eval_ppl}\t{eval_bleu}\t{eval_rouge}",
                             file=eval_logger)
                         logger.info("current learning rate: " + str(optimizer.param_groups[0]["lr"]))
                         wandb.log({"eval_loss": eval_loss, "eval_ppl": eval_ppl, "eval_bleu": eval_bleu,
@@ -430,6 +430,7 @@ def alignment(args):
         os.mkdir(logger_dir)
 
     align_base_model(base_model, toker, align_dataloader, args, aligned_model_dir, logger)
+
     return aligned_model_dir
 
 

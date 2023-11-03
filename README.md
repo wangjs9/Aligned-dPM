@@ -67,3 +67,5 @@ Emotional Support Conversation: Refer to the [ESConv](./ESConv) and [MultiESC](.
 
 Integrity RoT Generation: Refer to the [mic](./mic) folder.
 
+### Checkpoints
+The checkpoints can be downloaded from [here](https://drive.google.com/drive/folders/10hQBq1d4IkuhHHyFXbvpk1Sgy0_oadHP?usp=sharing).
