@@ -535,7 +535,7 @@ class MultiBartEncoder(BartPretrainedModel):
                 emotion_embedding = self.emotion_embed(vads) * self.embed_scale
                 inputs_embeds = inputs_embeds + emotion_embedding
         try:
-            embed_pos = self.embed_positions(input_ids)
+            embed_pos = self.embed_positions(input_shape)
         except AttributeError:
             if input_ids is not None:
                 embed_pos = self.embed_positions(input_ids)
