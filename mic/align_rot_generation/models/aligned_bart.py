@@ -38,7 +38,11 @@ def RankingLoss(score, gold_score=None, margin=0.001, gold_margin=0, gold_weight
             loss_mask = ((pos_score != 0) & (neg_score != 0)).long()
             if loss_mask.sum() == 0:
                 continue
-            loss = loss_func(pos_score, neg_score, loss_mask) / loss_mask.sum()
+            pos_score = pos_score * loss_mask
+            neg_score = neg_score * loss_mask
+            total_pair = neg_score.size(0) * neg_score.size(1)
+            extra_margin = (total_pair - loss_mask.sum()) * margin * i
+            loss = (loss_func(pos_score, neg_score, loss_mask) - extra_margin) / loss_mask.sum()
             TotalLoss += loss
     if no_gold:
         return TotalLoss
