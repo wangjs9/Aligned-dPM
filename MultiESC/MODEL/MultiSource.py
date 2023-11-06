@@ -17,16 +17,12 @@ def RankingLoss(score, gold_score=None, margin=0.001, gold_margin=0, gold_weight
     no_cand = True if score.sum() == 0 else no_cand
     if not no_cand:
         for i in range(1, n):
-            pos_score = score[:, :-i]
-            neg_score = score[:, i:]
-            pos_score = pos_score.contiguous().view(-1)
-            neg_score = neg_score.contiguous().view(-1)
+            pos_score, neg_score = score[:, :-i], score[:, i:]
+            pos_score, neg_score = pos_score.contiguous().view(-1), neg_score.contiguous().view(-1)
             loss_func = torch.nn.MarginRankingLoss(margin * i, reduction='none')
             labels = ((pos_score != 0) & (neg_score != 0)).long()
             if labels.sum() == 0:
                 continue
-            pos_score = pos_score * labels
-            neg_score = neg_score * labels
             extra_margin = (torch.ones_like(neg_score) - labels) * (margin * i)
             loss = (loss_func(pos_score, neg_score, labels) - extra_margin).sum() / labels.sum()
             TotalLoss += loss
