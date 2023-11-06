@@ -31,8 +31,6 @@ num_heads)`.
 
 
 def RankingLoss(score, gold_score=None, margin=0.001, gold_margin=0, gold_weight=0, no_gold=False, no_cand=False):
-    if score.sum() == 0:
-        return 0
     loss_func = torch.nn.MarginRankingLoss(0.0, reduction="sum")
     loss_mask = (score != 0).long()
     TotalLoss = loss_func(score, score, loss_mask) / loss_mask.sum()

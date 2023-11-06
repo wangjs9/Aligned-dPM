@@ -10,8 +10,6 @@ from transformers.file_utils import ModelOutput
 
 
 def RankingLoss(score, gold_score=None, margin=0.001, gold_margin=0, gold_weight=0, no_gold=False, no_cand=False):
-    if score.sum() == 0:
-        return 0
     loss_func = torch.nn.MarginRankingLoss(0.0)
     TotalLoss = loss_func(score, score, (score != 0).long())
     # candidate loss
@@ -23,15 +21,14 @@ def RankingLoss(score, gold_score=None, margin=0.001, gold_margin=0, gold_weight
             neg_score = score[:, i:]
             pos_score = pos_score.contiguous().view(-1)
             neg_score = neg_score.contiguous().view(-1)
-            loss_func = torch.nn.MarginRankingLoss(margin * i, reduction='sum')
+            loss_func = torch.nn.MarginRankingLoss(margin * i, reduction='none')
             labels = ((pos_score != 0) & (neg_score != 0)).long()
             if labels.sum() == 0:
                 continue
             pos_score = pos_score * labels
             neg_score = neg_score * labels
-            total_pair = neg_score.size(0)
-            extra_margin = (total_pair - labels.sum()) * margin * i
-            loss = (loss_func(pos_score, neg_score, labels) - extra_margin) / labels.sum()
+            extra_margin = (torch.ones_like(neg_score) - labels) * (margin * i)
+            loss = (loss_func(pos_score, neg_score, labels) - extra_margin).sum() / labels.sum()
             TotalLoss += loss
     if no_gold:
         return TotalLoss
