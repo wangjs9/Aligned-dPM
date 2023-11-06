@@ -196,14 +196,12 @@ class Seq2SeqTrainer(Trainer):
             "synced_gpus": True if is_deepspeed_zero3_enabled() else False,
             "num_return_sequences": self._sequence_num if self._sequence_num is not None else self.model.config.num_return_sequences,
             "output_scores": self._output_score,
-            "return_dict_in_generate": self._output_score,
-            "do_sample": False,
-            # in ESConv do_sample is always True, a False value will produce higher results. Here we follow MultiESC
-            # "length_penalty": 1.0,
+            "return_dict_in_generate": self._output_score
         }
         try:
             if self.is_sampling:
                 assert self._num_beams is not None and self._sequence_num is not None, "Sampling requires num_beams and num_return_sequences to be set"
+                gen_kwargs["do_sample"] = False
                 gen_kwargs["diversity_penalty"] = 2.0
                 gen_kwargs["length_penalty"] = -1.0
 
